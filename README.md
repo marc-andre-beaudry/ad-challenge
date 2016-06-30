@@ -15,13 +15,12 @@ This is the App Direct Backend Coding Challenge, 2016 edition.
 4. Start the java application with -> java -Dchallengeapi.consumer.key=CONSUMER_KEY -Dchallengeapi.consumer.secret=CONSUMER_SECRET -jar appdirect-challenge-1.0.0.jar where CONSUMER_KEY and CONSUMER_SECRET are provided from the AppDirect's dashboard.
 
 # Implemented
-- Subscription create
-- Subscription change
-- Subscription cancel
-- Subscription status
-
-- User assigned
-- User unassigned
+- Subscription create (/api/v1/subscription/notification/create?url={eventUrl})
+- Subscription change (/api/v1/subscription/notification/change?url={eventUrl})
+- Subscription cancel (/api/v1/subscription/notification/cancel?url={eventUrl})
+- Subscription status (/api/v1/subscription/notification/status?url={eventUrl})
+- User assigned (/api/v1/subscription/notification/user/assign?url={eventUrl})
+- User unassigned (/api/v1/subscription/notification/user/unassign?url={eventUrl})
 
 - OAuth incoming request validation (otherwise denied 403)
-- Admin read-only endpoint to view users + account subscriptions
+- Admin read-only endpoint to view users + account subscriptions (/admin/v1/user, /admin/v1/subscription, etc.)
