@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.marc.challenge.controller.appdirect.response.ResponseErrorCode;
 import com.marc.challenge.controller.appdirect.response.SubscriptionErrorResponse;
 import com.marc.challenge.controller.appdirect.response.SubscriptionResponse;
 import com.marc.challenge.controller.appdirect.response.SubscriptionSuccessResponse;
@@ -37,11 +38,12 @@ public class NotificationHandlerServiceImpl implements NotificationHandlerServic
 			return new SubscriptionResponse(true);
 		}
 
-		// TODO check many to many, or not ?
+		// TODO OneToMany or ManyToMany ?
 		SubscriptionAccount subscriptionAccount = SubscriptionAccount.newSubscriptionFromNotification(notification);
+		subscriptionAccount = subscriptionAccountRepository.saveAndFlush(subscriptionAccount);
 		User creatorUser = User.createNewFromNotificationCreator(notification);
 		userRepository.saveAndFlush(creatorUser);
-		subscriptionAccount = subscriptionAccountRepository.saveAndFlush(subscriptionAccount);
+		creatorUser.setSubscriptionAccount(subscriptionAccount);
 		return new SubscriptionSuccessResponse(String.valueOf(subscriptionAccount.getId()));
 	}
 
@@ -58,7 +60,7 @@ public class NotificationHandlerServiceImpl implements NotificationHandlerServic
 			account.setStatus("INACTIVE");
 			subscriptionAccountRepository.saveAndFlush(account);
 		} else if (NotificationFlag.DEVELOPMENT != notification.getFlag()) {
-			return new SubscriptionErrorResponse("ACCOUNT_NOT_FOUND", "Account not found");
+			return new SubscriptionErrorResponse(ResponseErrorCode.ACCOUNT_NOT_FOUND, "Account not found");
 		}
 		return new SubscriptionResponse(true);
 	}
@@ -73,9 +75,13 @@ public class NotificationHandlerServiceImpl implements NotificationHandlerServic
 		String accountIdentifier = notification.getPayload().getAccount().getAccountIdentifier();
 		SubscriptionAccount subscriptionAccount = subscriptionAccountRepository
 				.findOne(Integer.parseInt(accountIdentifier));
-		if (subscriptionAccount == null && NotificationFlag.DEVELOPMENT != notification.getFlag()) {
-			return new SubscriptionErrorResponse("ACCOUNT_NOT_FOUND", "Account not found");
+
+		if (subscriptionAccount == null) {
+			return new SubscriptionErrorResponse(ResponseErrorCode.ACCOUNT_NOT_FOUND, "Account not found");
 		} else {
+			// TODO, Let's only deal with the edition at the moment
+			subscriptionAccount.setEdition(notification.getPayload().getOrder().getEditionCode());
+			subscriptionAccountRepository.saveAndFlush(subscriptionAccount);
 			return new SubscriptionResponse(true);
 		}
 	}
@@ -91,7 +97,7 @@ public class NotificationHandlerServiceImpl implements NotificationHandlerServic
 		SubscriptionAccount subscriptionAccount = subscriptionAccountRepository
 				.findOne(Integer.parseInt(accountIdentifier));
 		if (subscriptionAccount == null) {
-			return new SubscriptionErrorResponse("ACCOUNT_NOT_FOUND", "Account not found");
+			return new SubscriptionErrorResponse(ResponseErrorCode.ACCOUNT_NOT_FOUND, "Account not found");
 		} else {
 			return new SubscriptionResponse(true);
 		}

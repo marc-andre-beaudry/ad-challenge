@@ -20,6 +20,7 @@ import com.marc.challenge.repository.subscription.SubscriptionAccountRepository;
 import com.marc.challenge.repository.user.User;
 import com.marc.challenge.repository.user.UserRepository;
 
+//v1 of this REST API
 @RestController
 @RequestMapping("/admin/v1")
 public class AdminController {
