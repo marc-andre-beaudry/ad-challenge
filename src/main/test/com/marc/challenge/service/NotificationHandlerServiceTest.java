@@ -19,7 +19,7 @@ import com.marc.challenge.repository.user.UserRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { Application.class })
-@TestPropertySource(locations = "classpath:application.properties")
+@TestPropertySource(locations = "classpath:com/marc/challenge/service/test.properties")
 public class NotificationHandlerServiceTest {
 
 	private NotificationHandlerService notificationHandlerService;
