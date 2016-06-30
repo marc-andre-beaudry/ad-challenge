@@ -31,6 +31,8 @@ public class NotificationHandlerServiceImpl implements NotificationHandlerServic
 		this.subscriptionAccountRepository = subscriptionAccountRepository;
 	}
 
+	// https://docs.appdirect.com/developer/billing/event-notifications/user-events#event-flags
+	// Event flag 'STATELESS' is handled correctly for api uptime monitoring
 	@Override
 	public SubscriptionResponse handleCreate(Notification notification) {
 		if (NotificationFlag.STATELESS.equals(notification.getFlag())) {
@@ -56,7 +58,7 @@ public class NotificationHandlerServiceImpl implements NotificationHandlerServic
 
 		Integer accountIdentifier = Integer.parseInt(notification.getPayload().getAccount().getAccountIdentifier());
 		if (subscriptionAccountRepository.exists(accountIdentifier)) {
-			SubscriptionAccount account = subscriptionAccountRepository.getOne(accountIdentifier);
+			SubscriptionAccount account = subscriptionAccountRepository.findOne(accountIdentifier);
 			account.setStatus("INACTIVE");
 			subscriptionAccountRepository.saveAndFlush(account);
 		} else if (NotificationFlag.DEVELOPMENT != notification.getFlag()) {

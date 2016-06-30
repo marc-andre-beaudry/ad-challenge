@@ -124,6 +124,19 @@ public class NotificationHandlerServiceTest {
 		Assert.assertEquals("Edition should now be recurring", "RECURRING", account.get().getEdition());
 	}
 
+	@Test
+	public void test_that_cancel_notification_set_account_inactive() {
+		Notification createNotification = buildSubscriptionOrderNotification();
+		SubscriptionResponse response = notificationHandlerService.handleCreate(createNotification);
+
+		SubscriptionSuccessResponse successResponse = (SubscriptionSuccessResponse) response;
+		Notification cancelNotification = buildSubscriptionCancelNotification(successResponse.getAccountIdentifier());
+		notificationHandlerService.handleCancel(cancelNotification);
+
+		Optional<SubscriptionAccount> account = subscriptionAccountRepository.findAll().stream().findFirst();
+		Assert.assertEquals("Account should now be INACTIVE", "INACTIVE", account.get().getStatus());
+	}
+
 	private Notification buildPingNotification() {
 		Notification notification = new Notification();
 		notification.setFlag(NotificationFlag.STATELESS);
@@ -167,7 +180,7 @@ public class NotificationHandlerServiceTest {
 		return account;
 	}
 
-	private Notification buildSubscriptionCancelNotification() {
+	private Notification buildSubscriptionCancelNotification(String accountId) {
 		Notification notification = new Notification();
 		notification.setApplicationUuid("aaaaaa");
 		notification.setFlag(NotificationFlag.DEVELOPMENT);
@@ -178,6 +191,7 @@ public class NotificationHandlerServiceTest {
 		Payload payload = new Payload();
 		payload.setCompany(buildCompany());
 		payload.setOrder(buildOrder("RECURRING"));
+		payload.setAccount(buildAccount(accountId));
 		notification.setPayload(payload);
 		return notification;
 	}
